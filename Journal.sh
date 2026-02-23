@@ -14,9 +14,6 @@ git commit -m "maj de readme"
 git push origin main
 
 
-python3 -m venv nike_venv
-
-source nike_venv/bin/activate
 
 pip install -r requierements.txt
 python3 nike_formulaire.py
