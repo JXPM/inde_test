@@ -33,18 +33,18 @@ jobs:
       
       - name: Lancer les tests
         run: |
-          pytest -q 
-      - name: Publication du HTML
-        uses: actions/upload-artifact@v2
-        with:
-          name: report
-          path: report.html
+          pytest tests/ 
+      # - name: Publication du HTML
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: report
+      #     path: report.html
 
-      - name: Publication du JUnit XML
-        uses: actions/upload-artifact@v2
-        with:
-          name: junit-xml
-          path: junit.xml
+      # - name: Publication du JUnit XML
+      #   uses: actions/upload-artifact@v2
+      #   with:
+      #     name: junit-xml
+      #     path: junit.xml
 
   # release:
   #   name: Release
