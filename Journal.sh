@@ -10,7 +10,7 @@ git push --set-upstream origin main
 #fichier Maj et push
 git status
 git add .
-git commit -m "maj de readme"
+git commit -m "maj"
 git push origin main
 
 
