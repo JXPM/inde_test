@@ -33,7 +33,7 @@ jobs:
       
       - name: Lancer les tests
         run: |
-          pytest --html=report.html --self-contained-html
+          pytest -q 
       - name: Publication du HTML
         uses: actions/upload-artifact@v2
         with:
@@ -46,40 +46,40 @@ jobs:
           name: junit-xml
           path: junit.xml
 
-  release:
-    name: Release
-    runs-on: ubuntu-latest
-    needs: tests
+  # release:
+  #   name: Release
+  #   runs-on: ubuntu-latest
+  #   needs: tests
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v2
 
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: v${{ github.run_number }}
-          name: Release ${{ github.run_number }}
-          body: |
-            ## Release ${{ github.run_number }}
-            - Commit: ${{ github.sha }}
-            - Branch: ${{ github.ref }}
-            - Teste fait avec Python ${{ matrix.python-version }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #     - name: Create Release
+  #       uses: softprops/action-gh-release@v2
+  #       with:
+  #         tag_name: v${{ github.run_number }}
+  #         name: Release ${{ github.run_number }}
+  #         body: |
+  #           ## Release ${{ github.run_number }}
+  #           - Commit: ${{ github.sha }}
+  #           - Branch: ${{ github.ref }}
+  #           - Teste fait avec Python ${{ matrix.python-version }}
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  notify:
-    name: Notification sur Discord
-    runs-on: ubuntu-latest
-    needs: tests
+  # notify:
+  #   name: Notification sur Discord
+  #   runs-on: ubuntu-latest
+  #   needs: tests
 
-    steps:
-      - name: Envoi sur Discord
-        uses: Ilshidur/action-discord@master
-        with:
-          args: |
-            webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
-            webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
-            content: "Tests complet  ${{ matrix.python-version }}." 
-            Repo : ${{ github.repository }}.
-            Version Python : ${{ matrix.python-version }}.      
+  #   steps:
+  #     - name: Envoi sur Discord
+  #       uses: Ilshidur/action-discord@master
+  #       with:
+  #         args: |
+  #           webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+  #           webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+  #           content: "Tests complet  ${{ matrix.python-version }}." 
+  #           Repo : ${{ github.repository }}.
+  #           Version Python : ${{ matrix.python-version }}.      
