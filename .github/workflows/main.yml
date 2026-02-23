@@ -1,62 +1,60 @@
-name: Nike Website CI
+name: Tests et Release
 
 on:
   push:
-    branches: [main, master]
+    branches: [ main, master ]
   pull_request:
-    branches: [main, master]
+    branches: [ main, master ]
 
 jobs:
-  tests:
-    name: Tests Python ${{ matrix.python-version }}
+  tests: 
+    name: Python ${{ matrix.python-version }} 
     runs-on: ubuntu-latest
 
     strategy:
-      fail-fast: false
       matrix:
-        python-version: ["3.10", "3.11"]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
 
-    steps:
+    steps: 
       - name: Checkout code
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v2
+      
       - name: Installation de Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Installation de Chrome
+      
+      - name: Installation de Chrome 
         uses: browser-actions/setup-chrome@v1
 
-      - name: Installation des dépendances
+      - name: Installation de dependances
         run: |
-          python -m pip install --upgrade pip
           pip install -r requierements.txt
-          pip install pytest-html
-
-      - name: Lancer les tests + générer rapports
+      
+      - name: Lancer les tests
         run: |
-          pytest -q --junitxml=junit.xml --html=report.html --self-contained-html
-
-      - name: Publication du rapport HTML
-        uses: actions/upload-artifact@v4
+          pytest tests/  -v --html=report.html --junitxml=junit.xml
+      - name: Publication du HTML
+        uses: actions/upload-artifact@v2
         with:
-          name: report-py${{ matrix.python-version }}
+          name: report
           path: report.html
 
       - name: Publication du JUnit XML
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v2
         with:
-          name: junit-py${{ matrix.python-version }}
+          name: junit-xml
           path: junit.xml
 
   release:
     name: Release
     runs-on: ubuntu-latest
     needs: tests
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -66,25 +64,22 @@ jobs:
             ## Release ${{ github.run_number }}
             - Commit: ${{ github.sha }}
             - Branch: ${{ github.ref }}
-            - CI: tests OK sur la matrice Python
+            - Teste fait avec Python ${{ matrix.python-version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   notify:
-    name: Notification Discord
+    name: Notification sur Discord
     runs-on: ubuntu-latest
-    needs: [tests, release]
-    if: always()
+    needs: tests
 
     steps:
       - name: Envoi sur Discord
         uses: Ilshidur/action-discord@master
         with:
-          args: >
-            Tests terminés.
-            Repo: ${{ github.repository }}.
-            Branche: ${{ github.ref_name }}.
-            Statut tests: ${{ needs.tests.result }}.
-            Statut release: ${{ needs.release.result }}.
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          args: |
+            webhook_id: ${{ secrets.DISCORD_WEBHOOK_ID }}
+            webhook_token: ${{ secrets.DISCORD_WEBHOOK_TOKEN }}
+            content: "Tests complet  ${{ matrix.python-version }}." 
+            Repo : ${{ github.repository }}.
+            Version Python : ${{ matrix.python-version }}.      
