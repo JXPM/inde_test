@@ -14,3 +14,35 @@ jobs:
     strategy:
       matrix:
         python-version: [3.8, 3.9, 3.10, 3.11]
+
+    steps: 
+      - name: Checkout code
+        uses: actions/checkout@v2
+      
+      - name: Installation de Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Installation de Chrome 
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Installation de dependances
+        run: |
+          pip install -r requirements.txt
+      
+      - name: Lancer les tests
+        run: |
+          pytest --html=report.html --self-contained-html
+      - name: Publication du HTML
+        uses: actions/upload-artifact@v2
+        with:
+          name: report
+          path: report.html
+
+      - name: Publication du JUnit XML
+        uses: actions/upload-artifact@v2
+        with:
+          name: junit-xml
+          path: junit.xml
+      
