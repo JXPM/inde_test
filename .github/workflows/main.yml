@@ -29,7 +29,7 @@ jobs:
 
       - name: Installation de dependances
         run: |
-          pip install -r requirements.txt
+          pip install -r requierements.txt
       
       - name: Lancer les tests
         run: |
