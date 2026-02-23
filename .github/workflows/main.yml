@@ -6,27 +6,26 @@ on:
   pull_request:
     branches: [main, master]
 
+permissions:
+  contents: write
+
 jobs:
   tests:
     name: Tests Python ${{ matrix.python-version }}
     runs-on: ubuntu-latest
-
     strategy:
       fail-fast: false
       matrix:
         python-version: ["3.10", "3.11"]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Installation de Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Installation de Chrome
-        uses: browser-actions/setup-chrome@v1
+      - uses: browser-actions/setup-chrome@v1
 
       - name: Installation des dépendances
         run: |
@@ -34,18 +33,16 @@ jobs:
           pip install -r requierements.txt
           pip install pytest-html
 
-      - name: Lancer les tests + générer rapports
+      - name: Lancer les tests + rapports
         run: |
           pytest -q --junitxml=junit.xml --html=report.html --self-contained-html
 
-      - name: Publication du rapport HTML
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: report-py${{ matrix.python-version }}
           path: report.html
 
-      - name: Publication du JUnit XML
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: junit-py${{ matrix.python-version }}
           path: junit.xml
@@ -55,6 +52,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: tests
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: write
 
     steps:
       - name: Create Release
@@ -70,21 +69,4 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  notify:
-    name: Notification Discord
-    runs-on: ubuntu-latest
-    needs: [tests, release]
-    if: always()
 
-    steps:
-      - name: Envoi sur Discord
-        uses: Ilshidur/action-discord@master
-        with:
-          args: >
-            Tests terminés.
-            Repo: ${{ github.repository }}.
-            Branche: ${{ github.ref_name }}.
-            Statut tests: ${{ needs.tests.result }}.
-            Statut release: ${{ needs.release.result }}.
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
