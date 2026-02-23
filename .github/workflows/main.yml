@@ -70,3 +70,24 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
+#======= IGNORE ======
+#  notify:
+    # name: Notification Discord
+    # runs-on: ubuntu-latest
+    # needs: [tests, release]
+    # if: always()
+
+    # steps:
+    #   - name: Envoi sur Discord
+    #     if: ${{ secrets.DISCORD_WEBHOOK != '' }}
+    #     uses: Ilshidur/action-discord@master
+    #     with:
+    #       args: >
+    #         Tests terminés.
+    #         Repo: ${{ github.repository }}.
+    #         Branche: ${{ github.ref_name }}.
+    #         Statut tests: ${{ needs.tests.result }}.
+    #         Statut release: ${{ needs.release.result }}.
+    #     env:
+    #       DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+#================
